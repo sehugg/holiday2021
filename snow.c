@@ -30,6 +30,7 @@ Flake flakes[NUMFLAKES];
 // initialize a snowflake at a random position
 void InitFlake(Flake* f) {
   f->x = rand();
+  if (f->x >= 160) f->x -= 160; // force to 0..159
   f->y = rand();
 }
 
@@ -37,7 +38,7 @@ void InitFlake(Flake* f) {
 // copy byte from background bitmap to screen
 void EraseFlake(Flake* f) {
   char* ptr;
-  if (f->y < 192) {
+  if (f->y < 200) {
     ptr = cpct_getScreenPtr ((void*)0x0, f->x, f->y);
     *(ptr + 0xc000) = *(ptr + (u16)BITMAP);
   }
@@ -46,7 +47,7 @@ void EraseFlake(Flake* f) {
 // set snowflake byte on screen
 void DrawFlake(Flake* f) {
   char* ptr;
-  if (f->y < 192) {
+  if (f->y < 200) {
     ptr = cpct_getScreenPtr ((void*)0xc000, f->x, f->y);
     *ptr = SNOWFLAKE_BYTE;
   }

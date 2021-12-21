@@ -6,23 +6,27 @@
 
 //#link "snowbmp.s"
 
-// bitmap bytes (from Dithertron)
+// background bitmap exported from Dithertron
+// photo by Yeo Khee https://unsplash.com/photos/27cA1PpSd74
 extern const char BITMAP[];
 
-// ported from Dithertron, draws the background bitmap
+// assembly code exported from Dithertron
+// draws the background bitmap
 // and sets the palette colors
 extern void LoadBitmap();
 
 // data structure for a single snowflake
 typedef struct Flake {
   u8 x,y; // x,y position
+  u8 yinc;
+  u8 pixbyte;
 } Flake;
 
 // how many snowflakes?
-#define NUMFLAKES 120
+#define NUMFLAKES 150
 
 // 2-pixel byte that draws a single snowflake
-#define SNOWFLAKE_BYTE 0xb9
+const u8 SNOWFLAKES[3] = { 0, 0xfc, 0xb9 };
 
 // array of snowflakes
 Flake flakes[NUMFLAKES];
@@ -32,6 +36,8 @@ void InitFlake(Flake* f) {
   f->x = rand();
   if (f->x >= 160) f->x -= 160; // force to 0..159
   f->y = rand();
+  f->yinc = (rand() & 1) + 1;
+  f->pixbyte = SNOWFLAKES[f->yinc];
 }
 
 // erase snowflake --
@@ -49,13 +55,13 @@ void DrawFlake(Flake* f) {
   char* ptr;
   if (f->y < 200) {
     ptr = cpct_getScreenPtr ((void*)0xc000, f->x, f->y);
-    *ptr = SNOWFLAKE_BYTE;
+    *ptr = f->pixbyte;
   }
 }
 
 // make snowflake fall downward
 void MoveFlake(Flake* f) {
-  f->y++;
+  f->y += f->yinc;
 }
 
 // init snowflakes and make it snow forever
